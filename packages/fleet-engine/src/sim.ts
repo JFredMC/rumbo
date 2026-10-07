@@ -106,7 +106,7 @@ export function createFleet(now: number, seed = 20261007, net: Network = NETWORK
     incidents: [],
     events: [],
   };
-  s = event(s, 'info', 'Turno iniciado. Telemetría simulada en el navegador.');
+  s = event(s, 'info', `Turno iniciado: ${buses.length} buses en ${net.size} rutas.`);
   return s;
 }
 

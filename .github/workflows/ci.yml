@@ -32,6 +32,8 @@ jobs:
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm test
+      - name: API e2e (HTTP + Socket.IO)
+        run: pnpm --filter @rumbo/api test:e2e
       - run: pnpm build
       - name: Build GitHub Pages bundle
         run: pnpm --filter @rumbo/web build:pages

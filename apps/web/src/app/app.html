@@ -21,7 +21,33 @@
     <span class="logo-text">Rumbo</span>
   </a>
   <span class="tagline">Consola de flota en vivo</span>
-  <span class="mode-pill" title="Simulación en este navegador, sin servidor">Demo</span>
+  @if (apiUrl) {
+    <div class="seg mode-seg" role="group" aria-label="Fuente de datos">
+      <button
+        type="button"
+        [class.on]="fleet.mode === 'demo'"
+        [attr.aria-pressed]="fleet.mode === 'demo'"
+        (click)="useMode('demo')"
+      >
+        Demo
+      </button>
+      <button
+        type="button"
+        [class.on]="fleet.mode === 'api'"
+        [attr.aria-pressed]="fleet.mode === 'api'"
+        (click)="useMode('api')"
+      >
+        API
+      </button>
+    </div>
+    @if (fleet.mode === 'api') {
+      <span class="conn" [class.ok]="fleet.connected()" role="status">
+        {{ fleet.connected() ? 'Conectado' : (fleet.error() ?? 'Conectando…') }}
+      </span>
+    }
+  } @else {
+    <span class="mode-pill" title="Simulación en este navegador, sin servidor">Demo</span>
+  }
   <div class="spacer"></div>
   <div class="clock" title="Hora simulada (Colombia)">
     <i class="bi bi-clock" aria-hidden="true"></i>
