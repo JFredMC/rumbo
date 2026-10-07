@@ -28,8 +28,10 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @rumbo/fleet-engine build
       - uses: actions/configure-pages@v5
-      - name: Build (demo, base href /rumbo/)
-        run: pnpm --filter @rumbo/web build:pages
+      # La base sale del nombre del repo, así el demo sigue funcionando si el repo cambia de nombre.
+      - name: Build (demo, base href /<repo>/)
+        working-directory: apps/web
+        run: pnpm exec ng build --base-href "/${{ github.event.repository.name }}/" && node scripts/postbuild-pages.mjs
       - uses: actions/upload-pages-artifact@v3
         with:
           path: apps/web/dist/web/browser
