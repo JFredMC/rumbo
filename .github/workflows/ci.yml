@@ -27,6 +27,8 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm format:check
+      - name: Build fleet engine
+        run: pnpm --filter @rumbo/fleet-engine build
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm test
