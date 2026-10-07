@@ -7,13 +7,16 @@ import { FleetStore } from './fleet-store';
 export class FakeFleetStore extends FleetStore {
   readonly mode = 'demo' as const;
   readonly state = signal<FleetState>(warmFleet(Date.UTC(2026, 9, 7, 17)));
-  toggleRun = vi.fn();
-  setSpeed = vi.fn();
-  setOutOfService = vi.fn((id: string, out: boolean) =>
+  override toggleRun = vi.fn();
+  override setSpeed = vi.fn();
+  override setOutOfService = vi.fn((id: string, out: boolean) =>
     this.state.update((s) => setOutOfService(s, id, out)),
   );
-  injectIncident = vi.fn();
-  clearIncidents = vi.fn();
+  override injectIncident = vi.fn();
+  readonly connected = signal(true);
+  readonly error = signal<string | null>(null);
+  dispatch = vi.fn();
+  override clearIncidents = vi.fn();
   reset = vi.fn();
 }
 

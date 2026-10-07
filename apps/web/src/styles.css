@@ -215,6 +215,14 @@ input:focus-visible {
   border-color: var(--accent);
 }
 
+.conn {
+  font-size: 12px;
+  color: var(--warn);
+}
+.conn.ok {
+  color: var(--ok);
+}
+
 /* ---------- KPI ---------- */
 .kpis {
   display: grid;
@@ -868,7 +876,8 @@ input:focus-visible {
     gap: 8px;
     padding: 0 10px;
   }
-  .mode-pill {
+  .mode-pill,
+  .conn {
     display: none;
   }
   .clock {

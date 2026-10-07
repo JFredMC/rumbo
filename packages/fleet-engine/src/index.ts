@@ -5,4 +5,5 @@ export * from './network';
 export * from './sim';
 export * from './views';
 export * from './format';
+export * from './actions';
 export { ROUTES, CITY } from './data/routes';

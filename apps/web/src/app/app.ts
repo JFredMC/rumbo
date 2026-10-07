@@ -1,5 +1,8 @@
 import { ChangeDetectionStrategy, Component, HostListener, inject } from '@angular/core';
 import type { Speed } from '@rumbo/fleet-engine';
+import { API_URL } from './core/api-fleet.store';
+import type { FleetMode } from './core/fleet-store';
+import { switchMode } from './core/mode';
 import { ConsoleStore, type MobileTab } from './core/console.store';
 import { ThemeStore } from './core/theme.store';
 import { EventLog } from './features/event-log';
@@ -30,12 +33,17 @@ export class App {
   readonly store = inject(ConsoleStore);
   readonly fleet = this.store.fleet;
   readonly theme = inject(ThemeStore);
+  readonly apiUrl = inject(API_URL, { optional: true });
   readonly speeds: readonly Speed[] = [1, 5, 20];
   readonly tabs: readonly { id: MobileTab; label: string }[] = [
     { id: 'flota', label: 'Flota' },
     { id: 'detalle', label: 'Detalle' },
     { id: 'bitacora', label: 'Bitácora' },
   ];
+
+  useMode(mode: FleetMode): void {
+    if (mode !== this.fleet.mode) switchMode(mode);
+  }
 
   reset(): void {
     if (confirm('¿Reiniciar la demo? Se pierde el estado guardado en este navegador.')) {

@@ -1,6 +1,11 @@
 import { DestroyRef, Injectable, inject, signal } from '@angular/core';
-import * as engine from '@rumbo/fleet-engine';
-import type { FleetState, Speed } from '@rumbo/fleet-engine';
+import {
+  applyAction,
+  tick,
+  warmFleet,
+  type FleetAction,
+  type FleetState,
+} from '@rumbo/fleet-engine';
 import { FleetStore } from './fleet-store';
 import { clearFleet, loadFleet, saveFleet } from './demo-storage';
 
@@ -14,6 +19,8 @@ const storage = (): Storage | undefined =>
 @Injectable()
 export class DemoFleetStore extends FleetStore {
   readonly mode = 'demo' as const;
+  readonly connected = signal(true).asReadonly();
+  readonly error = signal<string | null>(null).asReadonly();
   private readonly _state = signal<FleetState>(loadFleet(storage(), Date.now()));
   readonly state = this._state.asReadonly();
 
@@ -23,7 +30,7 @@ export class DemoFleetStore extends FleetStore {
     let lastSave = last;
     const timer = setInterval(() => {
       const t = performance.now();
-      this._state.update((s) => engine.tick(s, t - last));
+      this._state.update((s) => tick(s, t - last));
       last = t;
       if (t - lastSave > SAVE_MS) {
         lastSave = t;
@@ -42,28 +49,14 @@ export class DemoFleetStore extends FleetStore {
     saveFleet(storage(), this._state());
   }
 
-  private apply(fn: (s: FleetState) => FleetState): void {
-    this._state.update(fn);
+  dispatch(action: FleetAction): void {
+    this._state.update((s) => applyAction(s, action));
     this.save();
   }
 
-  toggleRun(): void {
-    this.apply(engine.toggleRun);
-  }
-  setSpeed(speed: Speed): void {
-    this.apply((s) => engine.setSpeed(s, speed));
-  }
-  setOutOfService(busId: string, out: boolean): void {
-    this.apply((s) => engine.setOutOfService(s, busId, out));
-  }
-  injectIncident(routeId: string): void {
-    this.apply((s) => engine.injectIncident(s, routeId));
-  }
-  clearIncidents(): void {
-    this.apply(engine.clearIncidents);
-  }
   reset(): void {
     clearFleet(storage());
-    this.apply(() => engine.warmFleet(Date.now(), (Date.now() % 100000) + 1));
+    this._state.set(warmFleet(Date.now(), (Date.now() % 100000) + 1));
+    this.save();
   }
 }
