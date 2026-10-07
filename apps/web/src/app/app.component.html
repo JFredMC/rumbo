@@ -1,0 +1,124 @@
+<div class="shell">
+  <header class="top">
+    <div class="brand">
+      <span class="mark">RB</span>
+      <div>
+        <strong>Rumbo</strong>
+        <small>Consola de operación · demo de portafolio</small>
+      </div>
+    </div>
+    <div class="live" [class.on]="fleet.connected()">
+      <i></i>
+      {{ fleet.connected() ? 'Telemetría en vivo' : 'Conectando…' }}
+    </div>
+    <div class="clock">{{ fleet.snapshot()?.updatedAt | date: 'HH:mm:ss' }}</div>
+  </header>
+
+  <aside class="rail">
+    @if (fleet.snapshot(); as snap) {
+      <section class="kpis">
+        <article>
+          <span>Unidades activas</span>
+          <strong>{{ snap.kpis.active }}</strong>
+        </article>
+        <article>
+          <span>A tiempo</span>
+          <strong>{{ snap.kpis.onTimePct }}%</strong>
+        </article>
+        <article>
+          <span>Retraso medio</span>
+          <strong>{{ snap.kpis.avgDelayMin | number: '1.1-1' }} min</strong>
+        </article>
+        <article>
+          <span>Ocupación</span>
+          <strong>{{ snap.kpis.avgOccupancy }}%</strong>
+        </article>
+      </section>
+    }
+
+    <section class="filters">
+      <button [class.active]="filter === 'todas'" (click)="filter = 'todas'">Todas</button>
+      @for (c of fleet.snapshot()?.corridors ?? []; track c.id) {
+        <button [class.active]="filter === c.id" (click)="filter = c.id">
+          <i [style.background]="c.color"></i>{{ c.name }}
+        </button>
+      }
+    </section>
+
+    <ul class="fleet-list">
+      @for (v of visibleVehicles(); track v.id) {
+        <li [class.selected]="fleet.selectedId() === v.id" (click)="pick(v)">
+          <div class="row">
+            <b>{{ v.code }}</b>
+            <em [attr.data-status]="v.status">{{ statusLabel(v.status) }}</em>
+          </div>
+          <div class="meta">
+            <span [style.color]="corridorColor(v.corridorId)">{{
+              corridorName(v.corridorId)
+            }}</span>
+            <span>{{ v.speedKmh }} km/h</span>
+            <span>{{ v.occupancy }}%</span>
+          </div>
+        </li>
+      }
+    </ul>
+  </aside>
+
+  <main class="stage">
+    <div #mapHost class="map"></div>
+    <p class="disclaimer">
+      Simulación. Corredores, patentes y posiciones son ficticios. No usa datos de ningún operador.
+    </p>
+  </main>
+
+  <aside class="detail">
+    @if (selected(); as bus) {
+      <p class="eyebrow">Unidad seleccionada</p>
+      <h2>{{ bus.code }}</h2>
+      <p class="type">
+        {{ bus.type === 'articulado' ? 'Articulado' : 'Padrón' }} · {{ bus.driver }}
+      </p>
+      <dl>
+        <div>
+          <dt>Corredor</dt>
+          <dd>{{ corridorName(bus.corridorId) }}</dd>
+        </div>
+        <div>
+          <dt>Estado</dt>
+          <dd>{{ statusLabel(bus.status) }}</dd>
+        </div>
+        <div>
+          <dt>Próxima parada</dt>
+          <dd>{{ bus.nextStop }}</dd>
+        </div>
+        <div>
+          <dt>Velocidad</dt>
+          <dd>{{ bus.speedKmh }} km/h</dd>
+        </div>
+        <div>
+          <dt>Retraso</dt>
+          <dd>{{ bus.delayMin | number: '1.1-1' }} min</dd>
+        </div>
+        <div>
+          <dt>Ocupación</dt>
+          <dd>{{ bus.occupancy }}%</dd>
+        </div>
+      </dl>
+      <div class="bar"><span [style.width.%]="bus.occupancy"></span></div>
+    } @else {
+      <p class="eyebrow">Seguimiento</p>
+      <h2>Elige una unidad</h2>
+      <p class="type">El mapa recibe posiciones cada segundo desde NestJS.</p>
+    }
+
+    <section class="log">
+      <p class="eyebrow">Bitácora</p>
+      @for (event of fleet.snapshot()?.events ?? []; track event.id) {
+        <article [attr.data-level]="event.level">
+          <time>{{ event.ts | date: 'HH:mm:ss' }}</time>
+          <span>{{ event.message }}</span>
+        </article>
+      }
+    </section>
+  </aside>
+</div>
