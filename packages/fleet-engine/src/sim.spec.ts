@@ -10,7 +10,9 @@ import {
   setSpeed,
   tick,
   toggleRun,
+  warmFleet,
 } from './sim';
+import { ROUTES } from './data/routes';
 import { LINE, T0 } from './test-helpers';
 import { kpis, stopArrivals, stopViews, vehicleViews } from './views';
 
@@ -163,5 +165,29 @@ describe('vistas', () => {
     expect(arr.length).toBeGreaterThan(0);
     expect(arr.map((a) => a.etaMin)).toEqual([...arr.map((a) => a.etaMin)].sort((a, b) => a - b));
     expect(new Set(arr.map((a) => a.routeId)).size).toBeGreaterThanOrEqual(1);
+  });
+});
+
+describe('warmFleet', () => {
+  it('termina en `now`, con eventos y determinista', () => {
+    const s = warmFleet(T0);
+    expect(s.now).toBe(T0);
+    expect(s.events.length).toBeGreaterThan(3);
+    expect(warmFleet(T0)).toEqual(s);
+  });
+
+  it('en terminal el bus ya mira a la vuelta', () => {
+    let s = warmFleet(T0);
+    for (let i = 0; i < 600; i++) {
+      s = advance(s, 1);
+      for (const v of vehicleViews(s)) {
+        if (v.status === 'terminal') {
+          const route = ROUTES.find((r) => r.id === v.routeId)!;
+          expect(v.nextStop).not.toBe(
+            v.direction === 'ida' ? route.stops[0]!.name : route.stops.at(-1)!.name,
+          );
+        }
+      }
+    }
   });
 });

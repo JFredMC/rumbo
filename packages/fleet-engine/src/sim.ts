@@ -174,6 +174,14 @@ function moveBus(
     bus.pos = stop.pos % route.cycle;
     bus.lastStop = next;
     if (stop.terminal) {
+      const min = Math.round(bus.delayS / 6) / 10;
+      const when =
+        Math.abs(min) < 1
+          ? 'a tiempo'
+          : min > 0
+            ? `con ${String(min).replace('.', ',')} min de retraso`
+            : `${String(-min).replace('.', ',')} min adelantado`;
+      evs.push(['info', `${bus.code} llegó a ${stop.name} ${when}.`]);
       // En terminal se ajusta el descanso para volver al horario: si viene tarde lo acorta,
       // si viene adelantado espera más.
       const layover = Math.max(30, Math.min(240, TERMINAL_LAYOVER - bus.delayS));
@@ -349,4 +357,17 @@ export function clearIncidents(s: FleetState): FleetState {
   return s.incidents.length
     ? event({ ...s, incidents: [] }, 'info', 'Incidentes despejados por el centro de control.')
     : s;
+}
+
+/**
+ * Flota que ya lleva un rato operando: se crea `minutes` antes de `now` y se simula hasta
+ * `now`, así la demo arranca con buses repartidos y una bitácora con contenido.
+ */
+export function warmFleet(
+  now: number,
+  seed = 20261007,
+  minutes = 15,
+  net: Network = NETWORK,
+): FleetState {
+  return advance(createFleet(now - minutes * 60_000, seed, net), minutes * 60, net);
 }

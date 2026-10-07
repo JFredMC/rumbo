@@ -33,7 +33,7 @@ export function vehicleView(s: FleetState, b: Bus, net: Network = NETWORK): Vehi
     delayMin: Math.round(b.delayS / 6) / 10,
     occupancy: Math.round(b.occupancy),
     battery: Math.round(b.battery),
-    direction: b.pos <= route.path.total ? 'ida' : 'vuelta',
+    direction: next?.direction ?? (b.pos < route.path.total ? 'ida' : 'vuelta'),
     nextStop: next?.name ?? '—',
     nextStopEtaMin: Math.round(eta * 10) / 10,
     progress: b.pos / route.cycle,
