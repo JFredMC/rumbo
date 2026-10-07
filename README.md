@@ -1,30 +1,17 @@
-# FlotaViva
+# Rumbo
 
-Consola de operación de flota en vivo, hecha como pieza de portafolio.
+Consola de flota en vivo: buses simulados que recorren rutas sobre el mapa, con estado operativo, retrasos, ocupación y bitácora.
 
-Buses simulados se mueven sobre corredores inventados. El backend NestJS publica la telemetría por WebSocket y el frontend Angular la pinta con MapLibre.
+> En reestructuración. Antes se llamaba **FlotaViva** (el enlace viejo redirige aquí). Monorepo pnpm: `apps/web` (Angular + MapLibre) y `apps/api` (NestJS + Socket.IO).
 
-No usa marcas, patentes, rutas, contratos ni sistemas de ningún operador real. La geometría es aproximada sobre cartografía pública y los nombres son ficticios.
+Todo es ficticio: rutas, paradas, códigos de bus y conductores son inventados y no representan a ningún operador.
 
-## Qué demuestra
-
-- Seguimiento de unidades en mapa, con estado operativo y bitácora.
-- Canal en vivo: NestJS Gateway + Socket.IO, snapshot inicial y tick cada segundo.
-- UI de consola: KPIs, filtro por corredor, ficha de unidad y ocupación.
-- Stack de producto: Angular 19 (signals) y NestJS 11.
-
-## Cómo correrlo
+## Desarrollo
 
 ```bash
-cd backend && npm install && npm run start:dev
-cd frontend && npm install && npm start
+corepack enable
+pnpm install
+pnpm build
 ```
 
-- API: http://localhost:3000/api/fleet
-- Consola: http://localhost:4200
-
-Socket.IO y MapLibre ya están en los `package.json`.
-
-## Límites a propósito
-
-La simulación no consulta GPS, SAE, GTFS ni bases operativas. Sirve para mostrar el tipo de consola —mapa, estado de flota, desvío y retraso— sin exponer operación real.
+Hecho por [JFredDev](https://jfredmc.github.io/portfolio/) · Licencia MIT.

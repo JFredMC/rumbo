@@ -1,0 +1,15 @@
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+body {
+  font-family: 'IBM Plex Sans', sans-serif;
+  background: #101612;
+}
+* {
+  box-sizing: border-box;
+}
+.maplibregl-ctrl-attrib {
+  font-size: 10px;
+}
