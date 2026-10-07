@@ -1,0 +1,119 @@
+<header class="topbar">
+  <a class="logo" href="./" aria-label="Rumbo, inicio">
+    <svg viewBox="0 0 32 32" width="28" height="28" aria-hidden="true">
+      <defs>
+        <linearGradient id="rb-g" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#22d3ee" />
+          <stop offset="1" stop-color="#818cf8" />
+        </linearGradient>
+      </defs>
+      <rect width="32" height="32" rx="9" fill="url(#rb-g)" />
+      <path
+        d="M8 23c3-9 6 1 9-6s5-6 7-8"
+        fill="none"
+        stroke="#04111c"
+        stroke-width="2.6"
+        stroke-linecap="round"
+      />
+      <circle cx="24" cy="9" r="3" fill="#04111c" />
+      <circle cx="8" cy="23" r="2.2" fill="#ffffff" />
+    </svg>
+    <span class="logo-text">Rumbo</span>
+  </a>
+  <span class="tagline">Consola de flota en vivo</span>
+  <span class="mode-pill" title="Simulación en este navegador, sin servidor">Demo</span>
+  <div class="spacer"></div>
+  <div class="clock" title="Hora simulada (Colombia)">
+    <i class="bi bi-clock" aria-hidden="true"></i>
+    <time data-testid="clock">{{ fleet.state().now | clock }}</time>
+  </div>
+  <div class="sim-controls" role="group" aria-label="Simulación">
+    <button
+      type="button"
+      class="icon-btn"
+      data-testid="toggle-run"
+      [attr.aria-label]="fleet.state().running ? 'Pausar simulación' : 'Reanudar simulación'"
+      [attr.aria-pressed]="!fleet.state().running"
+      (click)="fleet.toggleRun()"
+    >
+      <i
+        class="bi"
+        [class]="fleet.state().running ? 'bi-pause-fill' : 'bi-play-fill'"
+        aria-hidden="true"
+      ></i>
+    </button>
+    <div class="seg" role="group" aria-label="Velocidad de la simulación">
+      @for (s of speeds; track s) {
+        <button
+          type="button"
+          [class.on]="fleet.state().speed === s"
+          [attr.aria-pressed]="fleet.state().speed === s"
+          (click)="fleet.setSpeed(s)"
+        >
+          {{ s }}×
+        </button>
+      }
+    </div>
+    <button
+      type="button"
+      class="icon-btn"
+      aria-label="Reiniciar demo"
+      title="Reiniciar demo"
+      (click)="reset()"
+    >
+      <i class="bi bi-arrow-repeat" aria-hidden="true"></i>
+    </button>
+  </div>
+</header>
+
+<app-kpi-strip />
+
+<main class="layout" [attr.data-tab]="store.mobileTab()">
+  <aside class="panel fleet-panel">
+    <app-fleet-list />
+  </aside>
+
+  <section class="map-wrap" aria-label="Mapa">
+    <app-fleet-map />
+    <app-map-toolbar />
+    @if (!fleet.state().running) {
+      <div class="paused-badge" role="status">
+        <i class="bi bi-pause-circle" aria-hidden="true"></i> En pausa
+      </div>
+    }
+  </section>
+
+  <nav class="tabs" aria-label="Paneles">
+    @for (t of tabs; track t.id) {
+      <button
+        type="button"
+        [class.on]="store.mobileTab() === t.id"
+        [attr.aria-pressed]="store.mobileTab() === t.id"
+        (click)="store.mobileTab.set(t.id)"
+      >
+        {{ t.label }}
+      </button>
+    }
+  </nav>
+
+  <div class="side">
+    <section class="panel detail-panel" aria-label="Detalle">
+      @if (store.selectedBus(); as bus) {
+        <app-vehicle-detail [bus]="bus" />
+      } @else if (store.selectedStop(); as stop) {
+        <app-stop-board [stop]="stop" />
+      } @else {
+        <div class="hint">
+          <i class="bi bi-cursor" aria-hidden="true"></i>
+          <p>
+            Elige un bus de la lista o del mapa para ver su próxima parada, horario y ocupación.
+          </p>
+          <p class="muted">Toca una parada para ver las próximas llegadas.</p>
+        </div>
+      }
+    </section>
+    <section class="panel log-panel" aria-label="Bitácora">
+      <app-event-log />
+    </section>
+  </div>
+</main>
