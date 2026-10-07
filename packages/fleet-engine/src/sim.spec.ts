@@ -191,3 +191,34 @@ describe('warmFleet', () => {
     }
   });
 });
+
+describe('ETA', () => {
+  it('un bus detenido en parada no infla la ETA', () => {
+    let s = warmFleet(T0);
+    for (let i = 0; i < 300; i++) {
+      s = advance(s, 1);
+      for (const b of s.buses) {
+        if (b.dwellLeft <= 0) continue;
+        const v = vehicleViews(s).find((x) => x.id === b.id)!;
+        // Ningún tramo entre paradas del demo pasa de ~3,5 km: a ≥ 5,46 m/s son < 11 min + espera.
+        expect(v.nextStopEtaMin).toBeLessThan(11 + b.dwellLeft / 60 + 0.1);
+      }
+    }
+  });
+});
+
+describe('sentido', () => {
+  it('el sentido coincide con la terminal hacia la que va el bus', () => {
+    let s = warmFleet(T0);
+    for (let i = 0; i < 40; i++) {
+      s = advance(s, 30);
+      for (const v of vehicleViews(s)) {
+        const stops = ROUTES.find((r) => r.id === v.routeId)!.stops.map((x) => x.name);
+        const idx = stops.indexOf(v.nextStop);
+        // En la vuelta nunca se va hacia la terminal final de la ida, y viceversa.
+        if (v.direction === 'vuelta') expect(idx).toBeLessThan(stops.length - 1);
+        else expect(idx).toBeGreaterThan(0);
+      }
+    }
+  });
+});

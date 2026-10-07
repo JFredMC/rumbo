@@ -54,6 +54,13 @@ export class ConsoleStore {
     );
   });
 
+  /** Paradas cuyo nombre coincide con la búsqueda (máx. 4). */
+  readonly stopMatches = computed(() => {
+    const q = this.search().trim().toLowerCase();
+    if (q.length < 2) return [];
+    return this.stops.filter((s) => s.name.toLowerCase().includes(q)).slice(0, 4);
+  });
+
   readonly selectedBus = computed(() => {
     const sel = this.selection();
     return sel?.kind === 'bus' ? (this.vehicles().find((v) => v.id === sel.id) ?? null) : null;

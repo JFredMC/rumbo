@@ -35,11 +35,28 @@ import { DelayPipe, EtaPipe, RouteColorPipe, StatusPipe } from '../shared/pipes'
       <span class="sr-only">Buscar bus</span>
       <input
         type="search"
-        placeholder="Buscar código, conductor o parada"
+        placeholder="Buscar bus, conductor o parada"
         [value]="store.search()"
         (input)="store.search.set($any($event.target).value)"
       />
     </label>
+    @if (store.stopMatches().length) {
+      <ul class="stop-matches" aria-label="Paradas">
+        @for (st of store.stopMatches(); track st.name) {
+          <li>
+            <button type="button" class="stop-match" (click)="store.selectStop(st.name)">
+              <i
+                class="bi"
+                [class]="st.terminal ? 'bi-building' : 'bi-signpost-2'"
+                aria-hidden="true"
+              ></i>
+              <span>{{ st.name }}</span>
+              <span class="muted">{{ st.routes.join(' · ') }}</span>
+            </button>
+          </li>
+        }
+      </ul>
+    }
     <ul class="bus-list" aria-label="Buses">
       @for (v of store.filtered(); track v.id) {
         <li>
