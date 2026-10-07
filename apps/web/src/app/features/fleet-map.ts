@@ -74,6 +74,22 @@ export class FleetMap {
       ]);
     });
 
+    // Parada seleccionada: anillo y centrar el mapa en ella.
+    let lastStop: string | null = null;
+    effect(() => {
+      if (!this.ready()) return;
+      const stop = this.store.selectedStop();
+      const map = this.map!;
+      map.setFilter('stop-selected', ['==', ['get', 'name'], stop?.name ?? '']);
+      if (stop && stop.name !== lastStop)
+        map.easeTo({
+          center: [stop.lng, stop.lat],
+          zoom: Math.max(map.getZoom(), 14),
+          duration: 700,
+        });
+      lastStop = stop?.name ?? null;
+    });
+
     effect(() => {
       if (!this.ready()) return;
       this.src('incidents')?.setData(incidentsGeo(this.store.state().incidents));
@@ -222,6 +238,18 @@ export class FleetMap {
         'circle-color': light ? '#ffffff' : '#0b1220',
         'circle-stroke-color': ['get', 'color'],
         'circle-stroke-width': ['case', ['get', 'terminal'], 3, 2],
+      },
+    });
+    map.addLayer({
+      id: 'stop-selected',
+      type: 'circle',
+      source: 'stops',
+      filter: ['==', ['get', 'name'], ''],
+      paint: {
+        'circle-radius': 13,
+        'circle-color': 'transparent',
+        'circle-stroke-color': light ? '#0891b2' : '#22d3ee',
+        'circle-stroke-width': 3,
       },
     });
     map.addLayer({

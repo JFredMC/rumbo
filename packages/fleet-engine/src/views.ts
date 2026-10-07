@@ -11,6 +11,15 @@ export function statusOf(b: Bus, net: Network = NETWORK): VehicleStatus {
   return 'en_ruta';
 }
 
+/**
+ * Velocidad para estimar llegadas: la actual si va en marcha; si está detenido en parada, la
+ * de crucero con el tráfico del momento. Nunca menos del 70 % de la programada.
+ */
+function travelSpeed(s: FleetState, b: Bus, net: Network): number {
+  const v = b.dwellLeft > 0 ? b.cruise * b.traffic : currentSpeed(s, b, net);
+  return Math.max(v, SCHEDULED_SPEED * 0.7);
+}
+
 export function vehicleView(s: FleetState, b: Bus, net: Network = NETWORK): VehicleView {
   const route = getRoute(net, b.routeId);
   const pt = positionOnCycle(route, b.pos);
@@ -18,7 +27,7 @@ export function vehicleView(s: FleetState, b: Bus, net: Network = NETWORK): Vehi
   const next = route.stops[nextIdx];
   const v = currentSpeed(s, b, net);
   const dist = next ? forward(route, b.pos, next.pos) : 0;
-  const eta = b.outOfService ? 0 : (b.dwellLeft + dist / Math.max(v, SCHEDULED_SPEED * 0.6)) / 60;
+  const eta = b.outOfService ? 0 : (b.dwellLeft + dist / travelSpeed(s, b, net)) / 60;
   return {
     id: b.id,
     code: b.code,
@@ -33,7 +42,8 @@ export function vehicleView(s: FleetState, b: Bus, net: Network = NETWORK): Vehi
     delayMin: Math.round(b.delayS / 6) / 10,
     occupancy: Math.round(b.occupancy),
     battery: Math.round(b.battery),
-    direction: next?.direction ?? (b.pos < route.path.total ? 'ida' : 'vuelta'),
+    // Sentido según la parada a la que va; volver a la parada 0 es terminar la vuelta.
+    direction: nextIdx === 0 ? 'vuelta' : (next?.direction ?? 'ida'),
     nextStop: next?.name ?? '—',
     nextStopEtaMin: Math.round(eta * 10) / 10,
     progress: b.pos / route.cycle,
@@ -77,7 +87,7 @@ export function stopArrivals(
   for (const b of s.buses) {
     if (b.outOfService) continue;
     const route = getRoute(net, b.routeId);
-    const v = Math.max(currentSpeed(s, b, net), SCHEDULED_SPEED * 0.8);
+    const v = travelSpeed(s, b, net);
     for (const [i, st] of route.stops.entries()) {
       if (st.name !== stopName) continue;
       const dist = forward(route, b.pos, st.pos);
@@ -90,7 +100,7 @@ export function stopArrivals(
         busId: b.id,
         code: b.code,
         routeId: b.routeId,
-        direction: st.direction,
+        direction: i === 0 ? 'vuelta' : st.direction,
         etaMin: Math.round(etaMin * 10) / 10,
       });
     }

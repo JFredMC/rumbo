@@ -59,6 +59,14 @@ describe('ConsoleStore', () => {
     expect(store.arrivals().length).toBeGreaterThan(0);
   });
 
+  it('la búsqueda también encuentra paradas', () => {
+    store.search.set('p');
+    expect(store.stopMatches()).toEqual([]);
+    store.search.set('terminal');
+    expect(store.stopMatches().map((s) => s.name)).toContain('Terminal Norte');
+    expect(store.stopMatches().length).toBeLessThanOrEqual(4);
+  });
+
   it('sólo alertas oculta los eventos informativos', () => {
     store.onlyAlerts.set(true);
     expect(store.events().every((e) => e.level !== 'info')).toBe(true);
