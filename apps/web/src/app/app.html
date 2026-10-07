@@ -64,6 +64,33 @@
       <i class="bi bi-arrow-repeat" aria-hidden="true"></i>
     </button>
   </div>
+  <button
+    type="button"
+    class="icon-btn"
+    data-testid="theme"
+    id="theme-btn"
+    [attr.aria-label]="theme.theme() === 'dark' ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'"
+    title="Cambiar tema"
+    (click)="theme.toggle()"
+  >
+    <i
+      class="bi"
+      [class]="theme.theme() === 'dark' ? 'bi-sun' : 'bi-moon-stars'"
+      aria-hidden="true"
+    ></i>
+  </button>
+  <a
+    class="brand"
+    href="https://jfredmc.github.io/portfolio/"
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="Hecho por JFredDev: ver portafolio (se abre en otra pestaña)"
+    title="Hecho por JFredDev"
+    data-testid="brand"
+  >
+    <img src="brand/jfreddev.svg" alt="" width="22" height="22" />
+    <span>por <strong>JFredDev</strong></span>
+  </a>
 </header>
 
 <app-kpi-strip />
@@ -74,7 +101,7 @@
   </aside>
 
   <section class="map-wrap" aria-label="Mapa">
-    <app-fleet-map />
+    <app-fleet-map [theme]="theme.theme()" />
     <app-map-toolbar />
     @if (!fleet.state().running) {
       <div class="paused-badge" role="status">

@@ -72,4 +72,16 @@ describe('App', () => {
     el.querySelectorAll<HTMLButtonElement>('.menu-item')[2]!.click();
     expect(fleet.injectIncident).toHaveBeenCalledWith('C');
   });
+
+  it('marca JFredDev abre el portafolio en otra pestaña y el tema se alterna', async () => {
+    const { f, el } = render();
+    const brand = el.querySelector<HTMLAnchorElement>('[data-testid="brand"]')!;
+    expect(brand.target).toBe('_blank');
+    expect(brand.rel).toContain('noopener');
+    expect(brand.href).toBe('https://jfredmc.github.io/portfolio/');
+    const before = document.documentElement.dataset['theme'];
+    el.querySelector<HTMLButtonElement>('[data-testid="theme"]')!.click();
+    await f.whenStable();
+    expect(document.documentElement.dataset['theme']).not.toBe(before);
+  });
 });
