@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, HostListener, inject } from '@angular/core';
 import type { Speed } from '@rumbo/fleet-engine';
 import { ConsoleStore, type MobileTab } from './core/console.store';
+import { ThemeStore } from './core/theme.store';
 import { EventLog } from './features/event-log';
 import { FleetList } from './features/fleet-list';
 import { FleetMap } from './features/fleet-map';
@@ -28,6 +29,7 @@ import { ClockPipe } from './shared/pipes';
 export class App {
   readonly store = inject(ConsoleStore);
   readonly fleet = this.store.fleet;
+  readonly theme = inject(ThemeStore);
   readonly speeds: readonly Speed[] = [1, 5, 20];
   readonly tabs: readonly { id: MobileTab; label: string }[] = [
     { id: 'flota', label: 'Flota' },
